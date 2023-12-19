@@ -58,7 +58,7 @@ def interpret_and_execute(website_url, command):
 
             tester = AutomatedTesting(website_url)
             result = tester.test_search_bar(search_query)
-            tester.tearDown()
+            # tester.tearDown()
 
             print("Search bar testing complete. Result will be returned to the user.")
             return {"search_bar_result": result}
