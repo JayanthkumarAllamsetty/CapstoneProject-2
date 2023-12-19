@@ -194,21 +194,23 @@ class AutomatedTesting:
 
         search_bar_id = self.find_elements_by_attributes("input", youtube_attributes, return_id=True)
 
-        return search_bar_id[0] if search_bar_id else None
+        return search_bar_id if search_bar_id else None
     def test_search_bar(self, search_query=None):
-        search_bar_id = self.find_search_bar()
+        search_bar_attributes = {"type": "text"}
 
-        if not search_bar_id:
-            return "Search Bar Test Skipped: Element ID not found"
+        search_bar_elements = self.find_elements_by_attributes("input", search_bar_attributes)
+
+        if not search_bar_elements:
+            return "Search Bar Test Skipped: Element not found"
 
         try:
-            # Wait for the search bar to be visible and clickable
+            # Wait for the first search bar to be visible and clickable
             search_bar_element = WebDriverWait(self.driver, 10).until(
-                EC.visibility_of_element_located((By.ID, search_bar_id))
+                EC.visibility_of_element_located((By.ID, search_bar_elements[0]))
             )
 
             WebDriverWait(self.driver, 10).until(
-                EC.element_to_be_clickable((By.ID, search_bar_id))
+                EC.element_to_be_clickable((By.ID, search_bar_elements[0]))
             )
 
             # Perform typing into the search bar if a search query is provided
@@ -222,7 +224,7 @@ class AutomatedTesting:
                     EC.presence_of_element_located((By.XPATH, '//div[@data-asin]'))
                 )
 
-            return f"Performed search using ID: {search_bar_id} with query: {search_query}"
+            return f"Performed search using ID: {search_bar_elements[0]} with query: {search_query}"
 
         except Exception as e:
             print(f"Failed to interact with the search bar: {e}")
