@@ -1,3 +1,5 @@
+# The above class is a Python script that uses the Selenium library to automate testing of web pages,
+# including checking the page title, logging in, signing up, and interacting with a search bar.
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
@@ -11,33 +13,18 @@ class AutomatedTesting:
         self.driver = webdriver.Firefox()
         self.driver.get(url)
 
-    # def find_element(self, by, value, timeout=10):
-    #     try:
-    #         element = WebDriverWait(self.driver, timeout).until(
-    #             EC.presence_of_element_located((by, value))
-    #         )
-    #         return element
-    #     except TimeoutException:
-    #         print(f"Timed out waiting for element with {by}: {value}")
-
-    #     try:
-    #         element = self.driver.find_element(by, value)
-    #         return element
-    #     except NoSuchElementException:
-    #         print(f"Element with {by}: {value} not found")
-        
-    #     return None
-    # def click_element(self, by, value, timeout=10):
-    #     element = self.find_element(by, value, timeout)
-    #     if element:
-    #         try:
-    #             element.click()
-    #             return True
-    #         except ElementClickInterceptedException:
-    #             print(f"Element with {by}: {value} is not clickable")
-    #     return False
 
     def test_check_title(self, expected_title):
+        """
+        The function checks if the actual title of a web page matches the expected title and returns a
+        message indicating whether the check passed or failed.
+        
+        :param expected_title: The expected title of the web page that you are testing
+        :return: a string that indicates whether the title check passed or failed. If the actual title
+        matches the expected title, it returns a string stating "Title Check Passed" along with the actual
+        title. If the actual title does not match the expected title, it returns a string stating "Title
+        Check Failed" along with the expected and actual titles.
+        """
         WebDriverWait(self.driver, 60).until(EC.title_contains(expected_title))
         actual_title = self.driver.title
 
@@ -47,6 +34,23 @@ class AutomatedTesting:
             return f"Title Check Failed. Expected: {expected_title}, Actual: {actual_title}"
 
     def find_element(self, by, value, timeout=10):
+        """
+        The function `find_element` is used to locate and return an element on a web page using different
+        strategies, such as waiting for the element to be present or directly finding it.
+        
+        :param by: The "by" parameter specifies the method used to locate the element. It can take values
+        such as "id", "name", "class name", "tag name", "link text", "partial link text", "css selector",
+        or "xpath"
+        :param value: The "value" parameter represents the value used to locate the element. It can be a
+        string representing the ID, name, class name, CSS selector, XPath, or other attributes of the
+        element. The specific value depends on the "by" parameter, which determines the method used to
+        locate the element
+        :param timeout: The `timeout` parameter is the maximum amount of time (in seconds) that the code
+        will wait for the element to be located before timing out and throwing a `TimeoutException`. The
+        default value is 10 seconds, but you can override it by passing a different value when calling the
+        `find_element, defaults to 10 (optional)
+        :return: the element if it is found, or None if the element is not found.
+        """
         try:
             print(f"Trying to find element with {by}: {value}")
             element = WebDriverWait(self.driver, timeout).until(
@@ -66,6 +70,22 @@ class AutomatedTesting:
 
         return None
     def click_element(self, by, value, timeout=10):
+        """
+        The function `click_element` finds an element on a web page using a specified locator strategy and
+        value, and then attempts to click on it, returning True if successful and False otherwise.
+        
+        :param by: The "by" parameter specifies the method used to locate the element. It can take values
+        such as "id", "name", "class name", "xpath", "css selector", etc. This parameter is used in the
+        "find_element" method to locate the element
+        :param value: The "value" parameter in the "click_element" method represents the value of the
+        attribute that is used to locate the element on the web page. It could be the id, name, class,
+        xpath, etc. depending on the "by" parameter
+        :param timeout: The timeout parameter is the maximum amount of time (in seconds) that the code will
+        wait for the element to be found before raising an exception. If the element is not found within the
+        specified timeout, a NoSuchElementException will be raised, defaults to 10 (optional)
+        :return: a boolean value. It returns True if the element is found and successfully clicked, and
+        False if the element is not found or is not clickable.
+        """
         element = self.find_element(by, value, timeout)
         if element:
             try:
@@ -75,6 +95,15 @@ class AutomatedTesting:
                 print(f"Element with {by}: {value} is not clickable")
         return False
     def is_element_clickable(self, element):
+        """
+        The function checks if an element is clickable within a specified time limit.
+        
+        :param element: The "element" parameter is the web element that you want to check if it is clickable
+        or not
+        :return: a boolean value. If the element is clickable within the specified timeout period, it will
+        return True. Otherwise, if the element is not clickable within the timeout period, it will return
+        False.
+        """
         try:
             WebDriverWait(self.driver, 10).until(
                 EC.element_to_be_clickable((By.ID, element.get_attribute("id")))
@@ -83,6 +112,12 @@ class AutomatedTesting:
         except TimeoutException:
             return False
     def test_login(self):
+        """
+        The function `test_login` searches for login elements on a webpage and clicks on them, returning a
+        success message if found, or a skipped message if not found.
+        :return: The function will return either "Login Test Passed" if the login element is found and
+        clicked successfully, or "Login Test Skipped: Element not found" if the login element is not found.
+        """
         login_keywords = ["login", "signin"]
         for keyword in login_keywords:
             element = self.find_element(By.XPATH, f"//*[contains(@id, '{keyword}') or contains(@class, '{keyword}')]")
@@ -93,6 +128,14 @@ class AutomatedTesting:
         return "Login Test Skipped: Element not found"
 
     def test_sign_up(self):
+        """
+        The function `test_sign_up` searches for elements with the keywords "signup" or "register" and
+        clicks on the first element found, then waits for 20 seconds before returning a success message, or
+        returns a skipped message if no element is found.
+        :return: The function will return either "Sign Up Test Passed" if the sign up element is found and
+        clicked successfully, or "Sign Up Test Skipped: Element not found" if the sign up element is not
+        found.
+        """
         signup_keywords = ["signup", "register"]
         for keyword in signup_keywords:
             element = self.find_element(By.ID, keyword) or self.find_element(By.XPATH, f"//*[contains(@class, '{keyword}')]")
@@ -102,6 +145,11 @@ class AutomatedTesting:
                 return "Sign Up Test Passed"
         return "Sign Up Test Skipped: Element not found"
     def find_search_bar(self):
+        """
+        The function `find_search_bar` searches for a search bar element on a web page and returns the first
+        matching element.
+        :return: the search bar element if it is found, or None if it is not found or if there is an error.
+        """
         try:
             # Find input elements with the word 'search' in attributes
             search_bar_elements = self.driver.find_elements(By.XPATH, "//input[contains(@id, 'search') or contains(@class, 'search')]")
@@ -118,6 +166,20 @@ class AutomatedTesting:
             print(f"Error finding search bar element: {e}")
             return None
     def test_search_bar(self, search_query=None):
+        """
+        The function tests the search bar by entering a search query and returning a message indicating
+        the success or failure of the test.
+        
+        :param search_query: The search_query parameter is a string that represents the query to be
+        entered into the search bar. It is an optional parameter, so if no value is provided, the search
+        bar will not be interacted with and the function will return a message indicating that the test
+        was skipped
+        :return: a string indicating the result of the search bar test. If the search bar element is not
+        found, it returns "Search Bar Test Skipped: Element not found". If there is an exception while
+        interacting with the search bar, it returns "Search Bar Test Failed" followed by the error
+        message. Otherwise, it returns "Performed search using CSS Selector: input[type='search'] with
+        query
+        """
         search_bar_element = self.find_search_bar()
 
         if not search_bar_element:
