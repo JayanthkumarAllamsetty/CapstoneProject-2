@@ -6,10 +6,13 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import NoSuchElementException, TimeoutException, ElementClickInterceptedException
 from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
-import time
+from time import sleep
+from selenium.webdriver.common.action_chains import ActionChains
 class AutomatedTesting:
+    
     def __init__(self, url):
         # Initialize the Firefox driver
+        self.website_url = url
         self.driver = webdriver.Firefox()
         self.driver.get(url)
 
@@ -111,39 +114,72 @@ class AutomatedTesting:
             return True
         except TimeoutException:
             return False
-    def test_login(self):
-        """
-        The function `test_login` searches for login elements on a webpage and clicks on them, returning a
-        success message if found, or a skipped message if not found.
-        :return: The function will return either "Login Test Passed" if the login element is found and
-        clicked successfully, or "Login Test Skipped: Element not found" if the login element is not found.
-        """
-        login_keywords = ["login", "signin"]
-        for keyword in login_keywords:
-            element = self.find_element(By.XPATH, f"//*[contains(@id, '{keyword}') or contains(@class, '{keyword}')]")
-            if element:
-                element.click()
-                time.sleep(20)
-                return "Login Test Passed"
-        return "Login Test Skipped: Element not found"
+    def test_login(self, email, password):
+        try:
+            login_button = WebDriverWait(self.driver, 20).until(
+                EC.element_to_be_clickable((By.XPATH, "//span[contains(@class, 'login_click')]"))
+            )
+            login_button.click()
 
-    def test_sign_up(self):
-        """
-        The function `test_sign_up` searches for elements with the keywords "signup" or "register" and
-        clicks on the first element found, then waits for 20 seconds before returning a success message, or
-        returns a skipped message if no element is found.
-        :return: The function will return either "Sign Up Test Passed" if the sign up element is found and
-        clicked successfully, or "Sign Up Test Skipped: Element not found" if the sign up element is not
-        found.
-        """
-        signup_keywords = ["signup", "register"]
-        for keyword in signup_keywords:
-            element = self.find_element(By.ID, keyword) or self.find_element(By.XPATH, f"//*[contains(@class, '{keyword}')]")
-            if element:
-                element.click()
-                time.sleep(20)
-                return "Sign Up Test Passed"
-        return "Sign Up Test Skipped: Element not found"
+            # Wait for the login container to appear
+            login_container_class = "modal-header"
+            login_container = WebDriverWait(self.driver, 20).until(
+                EC.visibility_of_element_located((By.CLASS_NAME, login_container_class))
+            )
+
+            assert login_container.is_displayed(), "Login container is displayed after clicking Log In"
+
+            # Now enter the email and password
+            email_input = self.driver.find_element(By.ID, "si_popup_email")
+            password_input = self.driver.find_element(By.ID, "si_popup_passwd")
+
+            email_input.send_keys(email)
+            password_input.send_keys(password)
+
+            # Click the login button using JavaScript
+            login_button = self.driver.find_element(By.XPATH, "//button[contains(@class, 'clik_btn_log btn-block')]")
+            self.driver.execute_script("arguments[0].click();", login_button)
+            sleep(20)
+            return "Login Test Passed"
+        except TimeoutException:
+            return "Login button did not become clickable within 20 seconds."
+        except Exception as e:
+            return f"Login Test Failed: {str(e)}"
+
+    def test_sign_up(self, email, mobile_number):
+        try:
+            # Find the sign-up element
+            signup_element = WebDriverWait(self.driver, 20).until(
+                EC.element_to_be_clickable((By.XPATH, "//*[contains(@class, 'signup')]"))
+            )
+            signup_element.click()
+
+            # Find the email input
+            email_input = WebDriverWait(self.driver, 20).until(
+                EC.visibility_of_element_located((By.ID, "sg_popup_email"))
+            )
+            email_input.send_keys(email)
+
+            # Find the mobile number input
+            mobile_input = WebDriverWait(self.driver, 20).until(
+                EC.visibility_of_element_located((By.ID, "sg_popup_phone_no"))
+            )
+            mobile_input.send_keys(mobile_number)
+
+            # Scroll elements into view
+            self.driver.execute_script("arguments[0].scrollIntoView();", email_input)
+            self.driver.execute_script("arguments[0].scrollIntoView();", mobile_input)
+
+            # Perform additional actions if needed
+
+            # Click the sign-up button
+            signup_button = self.driver.find_element(By.XPATH, "//button[contains(text(), 'Sign Up')]")
+            signup_button.click()
+
+            return "Sign Up Test Passed"
+
+        except Exception as e:
+            return f"Sign Up Test Failed: {str(e)}"
     def find_search_bar(self):
         """
         The function `find_search_bar` searches for a search bar element on a web page and returns the first
